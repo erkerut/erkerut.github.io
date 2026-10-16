@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi Progreso Gym</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111827">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--acc:#38bdf8;--txt:#f1f5f9;--mut:#94a3b8;--ok:#22c55e;--warn:#facc15;--head:#020617;--accsoft:#334155;--acctext:#f1f5f9}
+*{box-sizing:border-box}input,select,textarea,button{min-width:0;max-width:100%}html{color-scheme:dark}body{margin:0;font-family:system-ui,Roboto,Arial;background:var(--bg);color:var(--txt);padding-bottom:96px}
+header{position:sticky;top:0;background:var(--head);padding:12px 16px;border-bottom:1px solid #334155;z-index:10}
+header h1{margin:0;font-size:18px}header small{color:var(--mut)}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--head);display:flex;border-top:1px solid #334155}
+nav button{flex:1;background:none;border:0;color:var(--mut);padding:16px 2px;font-size:16px;white-space:nowrap}
+@media(min-width:720px){nav button{padding:24px 4px;font-size:22px}}
+nav button.active{color:var(--acc);font-weight:700}
+main{padding:12px;max-width:640px;margin:auto}
+.card{background:var(--card);border-radius:12px;padding:12px;margin-bottom:12px;border:1px solid #334155}
+.card h3{margin:0 0 4px;font-size:16px}
+.last{font-size:13px;color:var(--acc);margin:4px 0}
+.badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;background:var(--accsoft);color:var(--acctext);margin-left:6px;text-transform:uppercase}
+.badge.up{background:var(--warn);color:#111;font-weight:700}
+.badge.ok{background:var(--ok);color:#06130a;font-weight:700}
+.badge.bigup{font-size:36px;padding:10px 24px;line-height:1.4}
+.setrow{display:flex;gap:8px;align-items:center;margin:8px 0}
+.setrow label{width:24px;color:var(--mut)}
+.setrow input{width:70px;padding:10px;border-radius:8px;border:1px solid #475569;background:var(--head);color:var(--txt);font-size:16px;text-align:center}
+.setrow input.rep{width:64px}
+.stepbtn{width:44px;height:44px;font-size:22px;border-radius:10px;border:1px solid transparent;background:var(--accsoft);color:var(--acctext)}
+select,input,textarea{background:var(--head);color:var(--txt);border:1px solid #475569;border-radius:8px;padding:10px;width:100%;font-size:15px}
+button.primary{background:var(--acc);border:0;color:#0b1220;font-weight:800;padding:14px;border-radius:12px;width:100%;font-size:16px;margin-top:8px}
+button.ghost{background:var(--accsoft);color:var(--txt);border:0;padding:10px;border-radius:10px;width:100%;margin-top:8px}
+.lastbig{font-size:26px;font-weight:800;color:var(--acc);min-width:40px;text-align:center}
+.ubtn{background:var(--accsoft);color:var(--acctext);border:1px solid transparent;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:800;margin-left:6px}
+.extop{display:flex;gap:8px;align-items:center;margin:4px 0}
+.exnote{flex:1;min-width:0}
+.muscle{height:104px;width:auto;flex:none;border-radius:8px}
+@media(min-width:720px){
+.card.ex{display:grid;grid-template-columns:1fr auto}
+.card.ex h3{grid-column:1/-1}
+.card.ex .extop{display:contents}
+.card.ex .exnote{grid-column:1;grid-row:2}
+.card.ex .muscle{grid-column:2;grid-row:2/span 2;height:230px}
+.card.ex .exsets{grid-column:1;grid-row:3}
+}
+.small{font-size:12px;color:var(--acctext);font-weight:700}
+h1,h3,b,label,.small,button,select,nav,.total,.timer{text-transform:uppercase}
+@keyframes flash{0%{box-shadow:0 0 0 3px var(--acc);background:var(--accsoft)}100%{box-shadow:none;background:transparent}}
+.flash{animation:flash 1.4s ease;border-radius:10px}
+canvas{width:100%;height:470px;background:var(--head);border-radius:10px;border:1px solid #334155}
+.total{font-size:46px;font-weight:800;color:var(--acc);text-align:center;padding:8px;line-height:1.1}
+@keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.pop{animation:pop .35s ease}
+.bigtitle{display:block;text-align:center;font-size:24px;font-weight:800}
+.timer{font-size:44px;font-weight:800;text-align:center;letter-spacing:2px}
+.timer.done{color:var(--ok)}
+.trow{display:flex;gap:8px;margin-top:8px}
+.trow button{flex:1;padding:12px;border-radius:10px;border:1px solid transparent;background:var(--accsoft);color:var(--txt);font-size:15px;font-weight:700}
+.trow button.go{background:var(--acc);color:#06202e}
+button[data-op="up"],button[data-op="dn"]{font-size:30px;font-weight:900;line-height:1.1}
+hr{border:0;border-top:1px solid #334155;margin:10px 0}
+</style>
+</head>
+<body>
+<header>
+<h1>Mi Progreso Gym <span id="userName" class="small"></span></h1>
+<small id="todayLine"></small>
+</header>
+<main>
+<section id="tab-hoy">
+<div class="card">
+<label class="bigtitle">Rutina de hoy</label>
+<select id="routineSelect"></select>
+<div class="small" id="routineInfo" style="margin-top:6px"></div>
+</div>
+<div class="card" id="timerCard">
+<h3>Descanso <span class="badge">3:00 por defecto</span></h3>
+<div class="timer" id="timerDisp">3:00</div>
+<div class="trow">
+<button class="go" id="tStart">Iniciar</button>
+<button id="t30">+30s</button>
+<button id="tReset">Reset</button>
+</div>
+<div class="trow">
+<button id="t1">1:30</button>
+<button id="t3">3:00</button>
+<button id="t5">5:00</button>
+</div>
+<div class="small">Suena y vibra al terminar. Puedes seguir registrando mientras corre.</div>
+</div>
+<div id="workoutList"></div>
+<div class="card"><div class="total" id="dayTotal">Total +0</div>
+<button class="primary" id="saveBtn">Finalizar</button>
+<div class="small" id="saveMsg"></div>
+</div>
+</section>
+<section id="tab-rutinas" style="display:none">
+<div id="routineEdit"></div>
+</section>
+<section id="tab-progreso" style="display:none">
+<div class="card">
+<label>Ejercicio</label>
+<select id="progSelect"></select>
+</div>
+<div class="trow" id="chartTabs"></div>
+<div class="card"><h3 id="progTitle"></h3><div class="small" id="progStats"></div><div class="small" id="progWeight"></div><canvas id="chart" width="600" height="470"></canvas>
+<div class="small" id="chartCap"></div>
+</div>
+<div class="card"><h3>Historial</h3><div id="histList"></div></div>
+</section>
+<section id="tab-ajustes" style="display:none">
+<div class="card"><h3>Color de la app</h3>
+<div style="display:flex;gap:8px;align-items:center">
+<input type="color" id="themeColor" value="#38bdf8" style="width:64px;height:48px;padding:4px">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="stepbtn" data-th="#38bdf8" style="background:#38bdf8;width:48px"> </button>
+<button class="stepbtn" data-th="#22c55e" style="background:#22c55e;width:48px"> </button>
+<button class="stepbtn" data-th="#f87171" style="background:#f87171;width:48px"> </button>
+<button class="stepbtn" data-th="#a78bfa" style="background:#a78bfa;width:48px"> </button>
+<button class="stepbtn" data-th="#fb923c" style="background:#fb923c;width:48px"> </button>
+<button class="stepbtn" data-th="#f472b6" style="background:#f472b6;width:48px"> </button>
+</div>
+</div>
+<div class="small">Elige tu color favorito y toda la interfaz se adapta (fondo, tarjetas y botones).</div>
+</div>
+<div class="card"><h3>Perfil</h3>
+<label>Tu nombre (se guarda solo en este cel)</label>
+<input type="text" id="nameInput" placeholder="Ej: Yo, Mi novia...">
+<button class="ghost" id="nameSave">Guardar nombre</button>
+</div>
+<div class="card"><h3>Historial de PDFs</h3>
+<button class="ghost" id="loadHist">Cargar historial de PDFs</button>
+<div class="small" id="histMsg">Lee sesiones-historial.json (97 sesiones dic-2024 a may-2026) y las suma sin duplicar. Si ya cargaste las 19 de prueba, dale primero a Borrar todo.</div>
+</div>
+<div class="card"><h3>Respaldo</h3>
+<button class="ghost" id="exportBtn">Exportar datos (para pasar a otro cel)</button>
+<label class="small">Importar archivo JSON</label>
+<input type="file" id="importFile" accept=".json">
+<hr>
+<button class="ghost" id="resetBtn">Borrar todo (cuidado)</button>
+<div class="small">Cada instalación guarda sus datos localmente. Sin cuenta, sin internet. Para que tu novia/amiga lo usen, pásales esta carpeta o el archivo exportado.</div>
+</div>
+<div class="small" style="text-align:center">VERSIÓN 15</div>
+</section>
+</main>
+<nav>
+<button data-t="tab-hoy" class="active">Hoy</button>
+<button data-t="tab-rutinas">Rutinas</button>
+<button data-t="tab-progreso">Progreso</button>
+<button data-t="tab-ajustes">Ajustes</button>
+</nav>
+<script src="app.js"></script>
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:center;justify-content:center;padding:20px">
+<div class="card" style="max-width:420px;width:100%;text-align:center"><h3 id="modalMsg"></h3><div class="trow"><button class="go" id="modalYes">Sí, dejarlo</button><button id="modalNo">No, corregir</button></div></div>
+</div>
+</body>
+</html>
